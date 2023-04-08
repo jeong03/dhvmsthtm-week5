@@ -1,0 +1,341 @@
+## 09. 함수와 모듈 ##
+## [프로그램 1] 로또 번호 추첨 ##
+import random
+
+## 함수 선언 부분 ##
+def getNumber():
+    return random.randrange(1,46)
+
+## 전역 변수 선언 부분 ##
+lotto = []
+num = 0
+
+## 메인 코드 부분 ##
+print("**로또 추첨을 시작합니다. **\n");
+
+while True :
+    num = getNumber()
+
+    if lotto.count(num) == 0:
+        lotto.append(num)
+
+    if len(lotto) >=6 :
+        break
+
+print("추첨된 로또 번호 ==> ", end = '')
+lotto.sort()
+for i in range(0,6):
+    print("%d "%lotto[i], end='')
+
+## [프로그램 2] 모듈을 활용해 글자를 쓰는 거북이 ##
+import random
+from tkinter.simpledialog import*
+
+def getString() :
+    retStr = ''
+    retStr = askstring('문자열 입력', '거북이 쓸 문자열을 입력')
+    return retStr
+
+def getRGB() :
+    r, g, b = 0, 0, 0
+    r = random.random()
+    g = random.random()
+    b = random.random()
+    return (r, g, b)
+
+def getXYAS(sw, sh) :
+    x, y, angle, size = 0, 0, 0, 0
+    x = random.randrange(-sw / 2, sw / 2)
+    y = random.randrange(-sh / 2, sh / 2)
+    anglge = random.randrange(0,360)
+    size = random.randrange(10, 50)
+    return [x, y, angle, size]
+
+from myTurtle import*
+import turtle
+
+## 전역 변수 선언 부분 ##
+inStr = ''
+swidth, sheight = 300, 300
+tX, tY, tAngle, tSize = [0]*4
+
+## 메인 코드 부분 ##
+turtle.title('거북이 글자쓰기(모듈버전)')
+turtle.shape('turtle')
+turtle.setup(width=swidth+50, height=sheight+50)
+turtle.screensize(swidth, sheight)
+turtle.penup()
+turtle.speed(5)
+inStr = getString()
+
+for ch in inStr :
+    tX, tY, tAngle, txtSize = getXYAS(swidth, sheight)
+    r,g,b = getRGB()
+
+    turtle.goto(tX, tY)
+    turtle.left(tAngle)
+
+    turtle.pencolor((r,g,b))
+    turtle.write(ch, font = ('맑은고딕', txtSize, 'bold'))
+
+turtle.done()
+
+
+## 10. 윈도 프로그래밍 ##
+## [프로그램 1] 사진앨범 ##
+from tkinter import *
+from time import *
+
+##전역 변수 선언 부분##
+fnameList = ["jejul.gif", "jeju2.gif", "jeju3.gif", "jeju4.gif", "jeju5.gif", "jeju6.gif", "jeju7.gif", "jeju8.gif", "jeju9.gif"]
+photoList = [None] * 9
+num =0
+
+##함수 선언 부분 #
+def clickNext():
+    global num
+    num += 1
+    if num > 8:
+        num = 0
+    photo=PhotoImage(file = "gif/" + fnameList[num])
+    pLabel.configure(image = photo)
+    plabel.image = photo 
+
+def clickPrev():
+    global num
+    num -= 1
+    if num < 0:
+        num = 8
+    photo=PhotoImage(file = "gif/" + fnameList[num])
+    pLabel.configure(image = photo)
+    pLabel.image = photo
+
+#메인코드 부분 #
+window =Tk()
+window.geometry("700x500")
+window.title("사진 앨범 보기")
+
+btnPrev = Button (window, text = "<< 이전", command = clickPrev)
+btnNext = Button(window, text = "다음 >>", command = clickNext)
+
+photo = PhotoImage(file = "gif/" + fnameList[0])
+pLabel = Label (window, image=photo)
+
+btnPrev.place(x = 250, y = 10)
+btnNext.place(x = 400, y = 10)
+pLabel.place(x = 15, y = 50)
+
+window.mainloop()
+
+## [프로그램 2] 명화 감상 ##
+from tkinter import *
+from tkinter.filedialog import *
+
+##함수 선언 부분 ##
+def func_open() :
+    filename = askopenfilename (parent = window, filetypes = (("GIF 파일", "*.gif"),("모든 파일", "*.*")))
+    photo = PhotoImage(file = filename)
+    pLabel.configure(image = photo)
+    pLabel.image = photo
+    
+def func_exit():
+    window.quit()
+    window.destroy()
+
+#메인 코드 부분 ##
+window = Tk()
+window.geometry("400x400")
+
+
+window.title("명화 감상하기")
+
+photo =PhotoImage()
+pLabel = Label (window, image=photo)
+pLabel.pack(expand=1,anchor=CENTER)
+
+mainMenu=Menu(window)
+window.config(menu = mainMenu)
+fileMenu = Menu (mainMenu)
+mainMenu.add_cascade (label = "파일", menu = fileMenu)
+fileMenu.add_command(label= "파일 열기", command = func_open)
+fileMenu.add_separator()
+fileMenu.add_command(label = "프로그램 종료", command = func_exit)
+
+window.mainloop()
+
+## 스택과 큐 ##
+## 4-1 ##
+# 고정 길이 스택 클래스 FixedStack 구현하기
+
+from typing import Any
+
+class FixedStack:
+    class Empty(Exception):
+        pass
+    class Full(Exception):
+        pass
+
+    def __init__(self, capacity: int=256)->None:
+        self.stk=[None]*capacity
+        self.capacity=capacity
+        self.ptr=0
+
+    def __len__(self)->int:
+        return self.ptr
+    
+    def is_empty(self)->bool:
+        return self.ptr<=0
+    
+    def is_full(self)->bool:
+        return self.ptr >= self.capacity
+    
+    def push(self, value: Any)->None:
+        if self.is_full():
+            raise FixedStack.Full
+        self.stk[self.ptr]=value
+        self.ptr+=1
+
+    def pop(self)->Any:
+        if self.is_empty():
+            raise FixedStack.Empty
+        self.ptr-=1
+        return self.stk[self.ptr]
+    
+    def peek(self)->Any:
+        if self.is_empty():
+            raise FixedStack.Empty
+        return self.stk[self.ptr-1]
+    
+    def clear(self)->None:
+        self.ptr=0
+
+    def find(self, value:Any)->Any:
+        for i in range(self.ptr-1, -1, -1):
+            if self.stk[i]==value:
+                return i
+            return -1
+        
+    def count(self, value:Any)->int:
+        c=0
+        for i in range(self.ptr):
+            if self.stk[i]==value:
+                c+=1
+            return c
+        
+    def __contains__(self, value:Any)->bool:
+        return self.count(value)
+    
+    def dump(self)->None:
+        if self.is_empty():
+            print('스택이 비어 있습니다.')
+        else:
+            print(self.stk[:self.ptr])
+
+## 4-3 ##
+from typing import Any
+
+class FixedQueue:
+
+    class Empty(Exception):
+        pass
+
+    class Full(Exception):
+        pass
+
+    def __init__(self, capacity: int) -> None:
+        self.no = 0
+        self.front = 0
+        self.rear = 0
+        self.capacity = capacity
+        self.que = [None] * capacity
+
+    def __len__(self) -> int:
+        return self.no
+
+    def is_empty(self) -> bool:
+        return self.no <= 0
+
+    def is_full(self) -> bool:
+        return self.no >= self.capacity
+
+    def __init__(self, capacity: int) -> None:
+        self.no = 0
+        self.front = 0
+        self.rear = 0
+        self.capacity = capacity
+        self.que = [None] * capacity
+
+    def __len__(self) -> int:
+        return self.no
+
+    def is_full(self) -> bool:
+        return self.no <= 0
+
+    def is_full(self) -> bool:
+        return self.no >= self.capacity
+
+    def enque(self, x: Any) -> None:
+        if self.is_full():
+            raise FixedQueue.Full
+        self.que[self.rear] = x
+        self.rear += 1
+        self.no += 1
+        if self.rear == self.capacity:
+            self.rear = 0
+
+    def deque(self) -> Any:
+        if self.is_empty():
+            raise FixedQueue.Empty
+        x = self.que[self.front]
+        self.front += 1
+        self.no -= 1
+        if self.front == self.capacity:
+            self.front = 0
+        return x
+
+    def peek(self) -> Any:
+        if self.is_empty():
+            raise FixedQueue.Empty
+        return self.que[self.front]
+
+    def find(self, value: Any) -> Any:
+        for i in range(self.no):
+            idx = (i + self.front) % self.capacity
+            if self.que[idx] == value:
+                return idx
+        return -1
+
+    def count(self, value: Any) -> bool:
+        c = 0
+        for i in range(self.no):
+            idx = (i + self.front) % self.capacity
+            if self.que[idx] == value:
+                c += 1
+        return c
+
+    def __contains__(self, value: Any) -> bool:
+        return self.count(value)
+
+    def clear(self) -> None:
+        self.no = self.front = self.rear = 0
+
+    def dump(self) -> None:
+        if self.is_empty():
+            print('큐가 비었습니다.')
+        else:
+            for i in range(self.no):
+                print(self.que[(i + self.front) % self.capacity], end='')
+            print()
+
+
+
+
+
+
+
+
+
+
+
+
+
